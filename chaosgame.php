@@ -1,9 +1,11 @@
 <?php
+ini_set('memory_limit', -1);
+error_reporting(E_ALL);
 
 $width = 5000;
 $height = 5000;
 //$iterations = 5000000;
-$iterations = 50000;
+$iterations = 5000;
 $rainbow_road = true;
 
 $triangle = [
@@ -49,7 +51,7 @@ $color = imagecolorallocate($img, 0, 0, 0);
 // Iterate
 foreach (range(0, $iterations) as $i) {
     // put dot
-    $pixels[$last_point['x'].':'. $last_point['y']] = [0, 0, 0];
+    $pixels[] = $last_point;
     imagefilledellipse($img, $last_point['x'], $last_point['y'], 50, 50, $color);
 
     $chosen_vertex = $vertex_points[mt_rand(0, count($vertex_points) - 1)];
@@ -63,28 +65,19 @@ imagepng($img, 'out.png');
 
 // Rainbow road
 if ($rainbow_road) {
-    $img = imagecreate($width, $height);
-    imagecolorallocate($img, 255, 255, 255);
-    foreach (range(0, $width) as $i) {
-        foreach (range(0, $height) as $j) {
-            if (
-                $pixels[$i.':'.$j][0] != 255 &&
-                $pixels[$i.':'.$j][1] != 255 &&
-                $pixels[$i.':'.$j][2] != 255
-            ) {
-                $r = ($i / 255) % 2 == 0 ? $i % 255 : 255 - ($i % 255);
-                $g = ($j / 255) % 2 == 0 ? $j % 255 : 255 - ($j % 255);
-                $b = 60;
+    $img2 = imagecreate($width, $height);
+    imagecolorallocate($img2, 255, 255, 255);
+    foreach ($pixels as $v) {
+        $r = 25;//($v['x'] / 255) % 2 == 0 ? $v['x'] % 255 : 255 - ($v['x'] % 255);
+        $g = 25;//($v['y'] / 255) % 2 == 0 ? $v['y'] % 255 : 255 - ($v['y'] % 255);
+        $b = 60;
 
-                $color = imagecolorallocate($img, $r, $g, $b);
-                imagefilledellipse($img, $i, $j, 50, 50, $color);
-                $pixels[$i.':'.$j] = [$r, $g, $b];
-            }
-        }
+        $color = imagecolorallocate($img2, $r, $g, $b);
+        imagefilledellipse($img2, $v['x'], $v['y'], 50, 50, $color);
     }
+    imagepng($img2, 'out2.png');
 }
 
-imagepng($img, 'out2.png');
 
 
 
